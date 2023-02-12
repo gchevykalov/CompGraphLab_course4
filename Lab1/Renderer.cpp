@@ -139,7 +139,7 @@ void Renderer::Cleanup() {
     SAFE_RELEASE(pRenderTargetView_);
     SAFE_RELEASE(pDeviceContext_);
     SAFE_RELEASE(pSwapChain_);
-
+#ifdef _DEBUG
     if (pDevice_ != NULL) {
         ID3D11Debug* d3dDebug = NULL;
         pDevice_->QueryInterface(IID_PPV_ARGS(&d3dDebug));
@@ -151,6 +151,7 @@ void Renderer::Cleanup() {
         }
         SAFE_RELEASE(d3dDebug);
     }
+#endif
     SAFE_RELEASE(pDevice_);
 }
 
