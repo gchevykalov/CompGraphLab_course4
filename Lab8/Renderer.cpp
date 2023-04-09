@@ -486,7 +486,7 @@ HRESULT Renderer::InitScene() {
 
             XMFLOAT4 min, max;
             XMStoreFloat4(&min, XMVector4Transform(XMLoadFloat4(&AABB[0]), geomBufferInst[i].worldMatrix));
-            XMStoreFloat4(&max, XMVector4Transform(XMLoadFloat4(&AABB[1]), geomBufferInst[i].worldMatrix));
+            XMStoreFloat4(&max, XMVector4Transform(XMLoadFloat4(&AABB[7]), geomBufferInst[i].worldMatrix));
             cullingParams.bbMin[i] = min;
             cullingParams.bbMax[i] = max;
         }
@@ -1070,9 +1070,19 @@ bool Renderer::UpdateScene() {
     pFrustum_->ConstructFrustum(mView, mProjection);
     cubeIndexies_.clear();
     for (int i = 0; i < cubesCount_; i++) {
-        XMFLOAT4 min, max;
-        XMStoreFloat4(&min, XMVector4Transform(XMLoadFloat4(&AABB[0]), geomBufferInst[i].worldMatrix));
-        XMStoreFloat4(&max, XMVector4Transform(XMLoadFloat4(&AABB[1]), geomBufferInst[i].worldMatrix));
+        XMFLOAT4 min, max, vec;
+        XMStoreFloat4(&vec, XMVector4Transform(XMLoadFloat4(&AABB[0]), geomBufferInst[i].worldMatrix));
+        max = vec;
+        min = vec;
+        for (int j = 1; j < 8; j++) {
+            XMStoreFloat4(&vec, XMVector4Transform(XMLoadFloat4(&AABB[j]), geomBufferInst[i].worldMatrix));
+            max.x = max.x >= vec.x ? max.x : vec.x;
+            max.y = max.y >= vec.y ? max.y : vec.y;
+            max.z = max.z >= vec.z ? max.z : vec.z;
+            min.x = min.x <= vec.x ? min.x : vec.x;
+            min.y = min.y <= vec.y ? min.y : vec.y;
+            min.z = min.z <= vec.z ? min.z : vec.z;
+        }
         if (!withCulling_ || withGPUCulling_ || pFrustum_->CheckRectangle(min, max)) {
             cubeIndexies_.push_back(i);
         }
